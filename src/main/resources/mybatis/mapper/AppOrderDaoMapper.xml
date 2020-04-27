@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.app.appOrder.dao.AppOrderDao">
+    <!--查询客户订单列表一对多-->
+    <resultMap id="customerOrderMap" type="com.xzsd.app.appOrder.entity.AppOrderInfo">
+        <id column="orderCode" property="orderCode"/>
+        <result column="orderState" property="orderState"/>
+        <result column="orderAmout" property="orderAmout"/>
+        <result column="countGoods" property="countGoods"/>
+        <result column="version" property="version"/>
+        <collection property="listOrderGoods" ofType="com.xzsd.app.appManager.entity.OrderGoodsInfo" column="orderCode" select="selectOrderGoods">
+            <id column="orderCode" property="orderCode"/>
+            <result column="goods_code" property="goodsCode"/>
+            <result column="goods_name" property="goodsName"/>
+            <result column="photo_path" property="photoPath"/>
+            <result column="goods_price" property="goodsPrice"/>
+            <result column="goods_introduce" property="goodsIntroduce"/>
+            <result column="buy_number" property="buyNumber"/>
+        </collection>
+    </resultMap>
+    <!--查询客户订单信息-->
+    <select id="listAppOrderByPage" parameterType="com.xzsd.app.appOrder.entity.AppOrderInfo" resultMap="customerOrderMap">
+        select
+        order_code orderCode,
+        order_state orderState,
+        order_amout orderAmout,
+        count_goods countGoods,
+        version version
+        from t_sys_order
+        where is_deleted = 0
+        and user_code = #{userCode}
+        <if test="orderState != null and orderState != ''">
+            and order_state = #{orderState}
+        </if>
+    </select>
+    <select id="selectOrderGoods" parameterType="com.xzsd.app.appOrder.entity.AppOrderInfo" resultType="com.xzsd.app.appManager.entity.OrderGoodsInfo">
+        select
+        a.goods_code goodsCode,
+        b.goods_name goodsName,
+        b.photo_path photoPath,
+        b.goods_price goodsPrice,
+        b.goods_introduce goodsIntroduce,
+        a.buy_number buyNumber
+        from t_sys_order_detail a
+        left join t_sys_goods b on a.goods_code = b.goods_code
+        where a.order_code = #{orderCode}
+        and a.is_deleted = 0
+    </select>
+    <!--修改订单状态-->
+    <update id="updateOrderState" parameterType="com.xzsd.app.appOrder.entity.AppOrderInfo">
+        update t_sys_order
+        set
+        order_state = #{orderState},
+        gmt_modified = now(),
+        last_modified_by = #{userCode},
+        version = version +1
+        where order_code = #{orderCode}
+        and version = #{version}
+    </update>
+    <!--客户订单商品详情-->
+    <resultMap id="customerOrderDetailMap" type="com.xzsd.app.appOrder.entity.AppOrderInfo">
+        <id column="orderCode" property="orderCode"/>
+        <result column="payTime" property="payTime"/>
+        <result column="orderState" property="orderState"/>
+        <result column="storeName" property="storeName"/>
+        <result column="address" property="address"/>
+        <result column="orderAmout" property="orderAmout"/>
+        <result column="countGoods" property="countGoods"/>
+        <result column="version" property="version"/>
+        <collection property="listOrderGoods" ofType="com.xzsd.app.appManager.entity.OrderGoodsInfo" column="orderCode" select="selectOrderGoods">
+            <id column="orderCode" property="orderCode"/>
+            <result column="goods_code" property="goodsCode"/>
+            <result column="goods_name" property="goodsName"/>
+            <result column="photo_path" property="photoPath"/>
+            <result column="goods_price" property="goodsPrice"/>
+            <result column="goods_introduce" property="goodsIntroduce"/>
+            <result column="buy_number" property="buyNumber"/>
+        </collection>
+    </resultMap>
+    <!--查询客户订单详情-->
+    <select id="getOrderByPage" parameterType="com.xzsd.app.appOrder.entity.AppOrderInfo" resultMap="customerOrderDetailMap">
+        select
+        a.order_code orderCode,
+        a.pay_time payTime,
+        a.order_state orderState,
+        b.store_name storeName,
+        concat_ws('',d.field_value,e.field_value,f.field_value,b.store_address) address,
+        a.order_amout orderAmout,
+        a.count_goods countGoods,
+        a.version version
+        from t_sys_order a
+        left join t_sys_store b on a.store_code = b.store_code
+        left join t_sys_dictionary d on b.province_code = d.field_code
+        left join t_sys_dictionary e on b.city_code = e.field_code
+        left join t_sys_dictionary f on b.area_code = f.field_code
+        where a.is_deleted = 0
+        and b.is_deleted = 0
+        and a.order_code = #{orderCode}
+    </select>
+    <!--查询订单评价商品-->
+    <select id="listGoodsByPage" parameterType="java.lang.String" resultType="com.xzsd.app.appOrder.entity.AppOrderInfo">
+        select
+        a.goods_code goodsCode,
+        b.photo_path photoPath
+        from t_sys_order_detail a, t_sys_goods b
+        where a.goods_code = b.goods_code
+        and a.order_code = #{orderCode}
+        and a.is_deleted = 0
+        and b.is_deleted = 0
+    </select>
+    <!--新增订单商品评价-->
+    <insert id="addGoodsEvaluate" parameterType="com.xzsd.app.appOrder.entity.AppOrderInfo">
+        insert into t_sys_goods__eva
+        (evaluate_code,
+         user_code,
+         goods_code,
+         star_class,
+         eva_content,
+         is_deleted,
+         gmt_create,
+         create_by,
+         version)
+         values
+         (#{evaluateCode},
+          #{userCode},
+          #{goodsCode},
+          #{starClass},
+          #{evaluateContent},
+          0,
+          now(),
+          #{userCode},
+          0)
+    </insert>
+</mapper>

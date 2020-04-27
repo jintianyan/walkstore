@@ -53,12 +53,20 @@ spring:
           statement-executable-sql-log-enable: false
           connection-log-enabled: false
           result-set-log-enabled: false
+  tengxun:
+    accessKey:
+    secretKey:
+    bucket:    xzsd-1301859258
+    bucketName:    xzsd-1301859258
+    path: https://xzsd-1301859258.cos.ap-chengdu.myqcloud.com
+    qianzhui: app
+    area: ap-chengdu
 mybatis:
   mapper-locations: classpath:mybatis/mapper/**/*Mapper.xml
   config-location: classpath:mybatis/mybatis-config.xml
 sc:
   cloud:
-    dev: true
+    debug: true
     task:
       core-pool-size: 20
       max-pool-size: 50

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.app.shoppingCart.dao.ShopCartDao">
+    <!--校验库存-->
+    <select id="countStock" parameterType="com.xzsd.app.shoppingCart.entity.ShopCartInfo" resultType="int">
+        select stock
+        from t_sys_goods
+        where goods_code = #{goodsCode}
+        and is_deleted = 0
+    </select>
+    <!--校验商品是否存在购物车-->
+    <select id="countGoods" parameterType="com.xzsd.app.shoppingCart.entity.ShopCartInfo" resultType="int">
+        select count(goods_code)
+        from t_sys_shop_car
+        where goods_code = #{goodsCode}
+        and is_deleted = 0
+    </select>
+    <!--修改原有商品数量-->
+    <update id="updateNumber" parameterType="com.xzsd.app.shoppingCart.entity.ShopCartInfo">
+        update t_sys_shop_car
+        set
+        buy_number = buy_number + #{buyNumber},
+        gmt_modified = now(),
+        last_modified_by = #{userCode},
+        version = version + 1
+        where goods_code = #{goodsCode}
+        and is_deleted = 0
+    </update>
+    <!--新增购物车商品-->
+    <insert id="addShopCar" parameterType="com.xzsd.app.shoppingCart.entity.ShopCartInfo">
+        insert into t_sys_shop_car
+        (shop_car_code,
+         user_code,
+         goods_code,
+         buy_number,
+         is_deleted,
+         gmt_create,
+         create_by,
+         gmt_modified,
+         last_modified_by,
+         version)
+         values
+         (#{shopCarCode},
+          #{userCode},
+          #{goodsCode},
+          #{buyNumber},
+          0,
+          now(),
+          #{userCode},
+          now(),
+          #{lastModifiedBy},
+          0)
+    </insert>
+    <!--查询购物车列表-->
+    <select id="listShopCartByPage" parameterType="com.xzsd.app.shoppingCart.entity.ShopCartInfo" resultType="com.xzsd.app.shoppingCart.entity.ShopCartInfo">
+        select
+        b.goods_code goodsCode,
+        b.goods_name goodsName,
+        b.photo_path photoPath,
+        b.goods_price goodsPrice,
+        a.buy_number buyNumber,
+        a.shop_car_code shopCarCode
+        from
+        t_sys_shop_car a,
+        t_sys_goods b
+        where a.goods_code = b.goods_code
+        and a.user_code = #{userCode}
+        and a.is_deleted = 0
+    </select>
+    <!--修改购物车商品数量-->
+    <update id="updateShoppingCart" parameterType="com.xzsd.app.shoppingCart.entity.ShopCartInfo">
+        update t_sys_shop_car
+        set
+        buy_number = #{buyNumber},
+        gmt_modified = now(),
+        last_modified_by = #{lastModifiedBy}
+        where shop_car_code = #{shopCarCode}
+        and is_deleted = 0
+    </update>
+    <!--删除购物车-->
+    <update id="deleteShoppingCart" parameterType="java.lang.String">
+        update t_sys_shop_car
+        set
+        is_deleted = 1,
+        gmt_modified = now()
+        where shop_car_code in
+        <foreach item="shopCarCode" index="index" collection="listCode" open="(" separator="," close=")">
+            #{shopCarCode}
+        </foreach>
+    </update>
+</mapper>
