@@ -1,5 +1,6 @@
 package com.xzsd.app.appOrder.dao;
 
+import com.xzsd.app.appOrder.entity.AppOrderDetailInfo;
 import com.xzsd.app.appOrder.entity.AppOrderInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -14,6 +15,36 @@ import java.util.List;
  */
 @Mapper
 public interface AppOrderDao {
+    /**
+     * 查询商品的库存列表
+     * @param listGoodsCode
+     * @return
+     */
+    List<String> getGoodsStock(@Param("listGoodsCode")List<String> listGoodsCode);
+    /**
+     * 新增订单详情
+     * @param listAppOrderDetail
+     * @return
+     */
+    int addOrderDetail(@Param("listAppOrderDetail")List<AppOrderDetailInfo>listAppOrderDetail);
+    /**
+     * 新增订单信息
+     * @param appOrderInfo
+     * @return
+     */
+    int addOrderInfo(AppOrderInfo appOrderInfo);
+    /**
+     * 减少库存
+     * @param listOrder
+     * @return
+     */
+    int updateGoodsStock(@Param("listOrder")List<AppOrderInfo>listOrder);
+    /**
+     * 删除购物车
+     * @param listShopCar
+     * @return
+     */
+    int deleteShopCarCode(@Param("listShopCar")List<String>listShopCar);
     /**
      * 查询客户订单列表
      * @param appOrderInfo

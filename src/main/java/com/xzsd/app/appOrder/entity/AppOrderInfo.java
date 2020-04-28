@@ -53,6 +53,26 @@ public class AppOrderInfo {
      */
     private String goodsCode;
     /**
+     * 商品售价
+     */
+    private String goodsPrice;
+    /**
+     * 购买数量
+     */
+    private String buyNumber;
+    /**
+     * 库存
+     */
+    private String stock;
+    /**
+     * 购物车编号
+     */
+    private String shopCarCode;
+    /**
+     * 门店编号
+     */
+    private String storeCode;
+    /**
      * 商品等级
      */
     private int starClass;
@@ -129,6 +149,26 @@ public class AppOrderInfo {
         this.goodsCode = goodsCode;
     }
 
+    public void setGoodsPrice(String goodsPrice) {
+        this.goodsPrice = goodsPrice;
+    }
+
+    public void setBuyNumber(String buyNumber) {
+        this.buyNumber = buyNumber;
+    }
+
+    public void setStock(String stock) {
+        this.stock = stock;
+    }
+
+    public void setShopCarCode(String shopCarCode) {
+        this.shopCarCode = shopCarCode;
+    }
+
+    public void setStoreCode(String storeCode) {
+        this.storeCode = storeCode;
+    }
+
     public void setStarClass(int starClass) {
         this.starClass = starClass;
     }
@@ -203,6 +243,26 @@ public class AppOrderInfo {
 
     public String getGoodsCode() {
         return goodsCode;
+    }
+
+    public String getGoodsPrice() {
+        return goodsPrice;
+    }
+
+    public String getBuyNumber() {
+        return buyNumber;
+    }
+
+    public String getStock() {
+        return stock;
+    }
+
+    public String getShopCarCode() {
+        return shopCarCode;
+    }
+
+    public String getStoreCode() {
+        return storeCode;
     }
 
     public int getStarClass() {

@@ -1,6 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.xzsd.app.appOrder.dao.AppOrderDao">
+    <!--查询所选商品的库存-->
+    <select id="getGoodsStock" parameterType="java.lang.String" resultType="java.lang.String">
+        select stock
+        from t_sys_goods
+        where goods_code in
+        <foreach item="goodsCode" index="index" collection="listGoodsCode" open="(" separator="," close=")">
+            #{goodsCode}
+        </foreach>
+    </select>
+    <!--新增订单详情-->
+    <insert id="addOrderDetail" parameterType="java.util.List" useGeneratedKeys="false">
+        insert into t_sys_order_detail
+        (details_code,
+         user_code,
+         order_code,
+         goods_code,
+         buy_number,
+         total_sum,
+         is_deleted,
+         gmt_create,
+         create_by,
+         gmt_modified,
+         last_modified_by,
+         version)
+         values
+         <foreach collection="listAppOrderDetail" item="item" index="index" separator=",">
+             (#{item.detailsCode},
+              #{item.userCode},
+              #{item.orderCode},
+              #{item.goodsCode},
+              #{item.buyNumber},
+              #{item.totalSum},
+              0,
+              now(),
+              #{item.userCode},
+              now(),
+              #{item.userCode},
+              0)
+         </foreach>
+    </insert>
+    <!--新增订单信息-->
+    <insert id="addOrderInfo" parameterType="com.xzsd.app.appOrder.entity.AppOrderInfo">
+        insert into t_sys_order
+        (order_code,
+         order_state,
+         store_code,
+         user_code,
+         order_amout,
+         count_goods,
+         pay_time,
+         is_deleted,
+         gmt_create,
+         create_by,
+         gmt_modified,
+         last_modified_by,
+         version)
+         values
+         (#{orderCode},
+          0,
+          #{storeCode},
+          #{userCode},
+          #{orderAmout},
+          #{countGoods},
+          now(),
+          0,
+          now(),
+          #{userCode},
+          now(),
+          #{userCode},
+          0)
+    </insert>
+    <!--修改商品库存-->
+    <update id="updateGoodsStock" parameterType="java.util.List">
+        <foreach collection="listOrder" item="item" separator=";">
+            update  t_sys_goods
+            set
+            stock = #{item.stock},
+            version = version +1
+            where
+            goods_code = #{item.goodsCode}
+        </foreach>
+    </update>
+    <!--删除购物车-->
+    <update id="deleteShopCarCode" parameterType="java.lang.String">
+        update t_sys_shop_car
+        set
+        is_deleted = 1,
+        version = version +1,
+        where goods_code in
+        <foreach item="item" index="index" collection="listShopCar" open="(" separator="," close=")">
+            #{shopCarCode}
+        </foreach>
+    </update>
     <!--查询客户订单列表一对多-->
     <resultMap id="customerOrderMap" type="com.xzsd.app.appOrder.entity.AppOrderInfo">
         <id column="orderCode" property="orderCode"/>

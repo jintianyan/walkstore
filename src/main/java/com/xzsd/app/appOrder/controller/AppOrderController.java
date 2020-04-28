@@ -6,6 +6,7 @@ import com.xzsd.app.appOrder.entity.AppOrderInfo;
 import com.xzsd.app.appOrder.service.AppOrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,6 +23,23 @@ public class AppOrderController {
     private static final Logger logger = LoggerFactory.getLogger(AppOrderController.class);
     @Resource
     private AppOrderService appOrderService;
+    /**
+     * 新增订单
+     * @param appOrderInfo
+     * @return AppResponse
+     * @author jintian
+     * @date 2020-04-27
+     */
+    @PostMapping("addOrder")
+    public AppResponse addOrder(AppOrderInfo appOrderInfo){
+        try{
+            return appOrderService.addOrder(appOrderInfo);
+        } catch (Exception e) {
+            logger.error("购买失败", e);
+            System.out.println(e.toString());
+            throw e;
+        }
+    }
     /**
      * 查询订单列表
      * @param
