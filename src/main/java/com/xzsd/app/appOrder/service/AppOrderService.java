@@ -117,13 +117,13 @@ public class AppOrderService {
         if(countStock == 0){
             return AppResponse.success("修改库存失败，请重试");
         }
-//        //删除购物车
-//        if(listShopCar.size() != 0 && !"".equals(listShopCar)){
-//            int countShopCarCode = appOrderDao.deleteShopCarCode(listShopCar);
-//            if(countShopCarCode == 0){
-//                return AppResponse.success("修改购物车信息失败，请重试");
-//            }
-//        }
+        //删除购物车
+        if(listShopCar.size() != 0 && !"".equals(listShopCar)){
+            int countShopCarCode = appOrderDao.deleteShopCarCode(listShopCar);
+            if(countShopCarCode == 0){
+                return AppResponse.success("修改购物车信息失败，请重试");
+            }
+        }
         return AppResponse.success("购买成功！");
     }
     /**
