@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.app.publicAdmin.dao.PublicAdminDao">
+    <select id="countCustomer" parameterType="com.xzsd.app.publicAdmin.entity.PublicAdminInfo" resultType="int">
+        select count(user_acct)
+        from t_sys_user
+        where is_deleted = 0
+        and user_acct = #{userAcct}
+        <if test="userCode != null and userCode != ''">
+            and user_code != #{userCode}
+        </if>
+    </select>
+
+    <!--新增用户表-->
+    <insert id="addUserTable" parameterType="com.xzsd.app.publicAdmin.entity.PublicAdminInfo">
+        insert into t_sys_user
+        (user_code,
+         user_name,
+         photo_path,
+         user_acct,
+         user_pwd,
+         id_card,
+         sex,
+         role,
+         phone,
+         email,
+         is_deleted,
+         gmt_create,
+         create_by,
+         gmt_modified,
+         last_modified_by,
+         version)
+         values
+         (#{userCode},
+          #{userName},
+          #{photoPath},
+          #{userAcct},
+          #{userPwd},
+          #{idCard},
+          #{sex},
+          #{role},
+          #{phone},
+          #{email},
+          0,
+          now(),
+          #{createBy},
+          now(),
+          #{lastModifiedBy},
+          0)
+    </insert>
+    <!--新增客户表-->
+    <insert id="addCustomerTable" parameterType="com.xzsd.app.publicAdmin.entity.PublicAdminInfo">
+        insert into t_sys_customer
+        (customer_code,
+         store_invite,
+         is_deleted,
+         gmt_create,
+         create_by,
+         gmt_modified,
+         last_modified_by,
+         version)
+         values
+         (#{userCode},
+          #{storeInvite},
+          0,
+          now(),
+          #{createBy},
+          now(),
+          #{lastModifiedBy},
+          0)
+    </insert>
+    <!--获取角色-->
+    <select id="getRoleByCode" parameterType="java.lang.String" resultType="java.lang.String">
+        select role
+        from t_sys_user
+        where user_code = #{loginCode}
+        and is_deleted = 0
+    </select>
+    <!--查询个人信息-->
+    <select id="getCustomerInfo" parameterType="java.lang.String" resultType="com.xzsd.app.publicAdmin.entity.PublicAdminInfo">
+        select
+        b.user_name userName,
+        b.photo_path photoPath,
+        <if test="role == 2">
+            a.store_code storeCode,
+            a.store_name storeName,
+            a.store_invite storeInvite,
+            concat_ws('',aa.field_value,ab.field_value,ac.field_value,a.store_address) address,
+        </if>
+        <if test="role == 3">
+            b.phone phone,
+            b.user_name userName,
+        </if>
+        <if test="role == 4">
+            d.store_code storeCode,
+            d.store_name storeName,
+            concat_ws('',e.field_value,f.field_value,g.field_value,d.store_address) address,
+        </if>
+        b.version version,
+        b.role role
+        from t_sys_store a
+        left join t_sys_dictionary aa on a.province_code = aa.field_code
+        left join t_sys_dictionary ab on a.city_code = ab.field_code
+        left join t_sys_dictionary ac on a.area_code = ac.field_code
+        right join t_sys_user b on a.manager_code = b.user_code
+        left join t_sys_customer c on b.user_code = c.customer_code
+        left join t_sys_store d on c.store_invite = d.store_invite
+        left join t_sys_dictionary e on d.province_code = e.field_code
+        left join t_sys_dictionary f on d.city_code = f.field_code
+        left join t_sys_dictionary g on d.area_code = g.field_code
+        where b.is_deleted = 0
+        and b.user_code = #{loginCode}
+    </select>
+<!--    &lt;!&ndash;查询个人信息&ndash;&gt;-->
+<!--    <select id="getCustomerInfo" parameterType="java.lang.String" resultType="com.xzsd.app.publicAdmin.entity.PublicAdminInfo">-->
+<!--        select-->
+<!--        a.user_name userName,-->
+<!--        a.photo_path photoPath,-->
+<!--        a.role role,-->
+<!--        c.store_code storeCode,-->
+<!--        c.store_name storeName,-->
+<!--        b.store_invite storeInvite,-->
+<!--        c.province_name provinceName,-->
+<!--        c.city_name cityName,-->
+<!--        c.area_name areaName,-->
+<!--        c.store_address storeAddress,-->
+<!--        a.phone phone,-->
+<!--        a.version version-->
+<!--        from t_sys_user a-->
+<!--        left join t_sys_customer b on a.user_code = b.customer_code-->
+<!--        left join t_sys_store c on b.store_invite = c.store_invite-->
+<!--        where a.user_code = #{loginCode}-->
+<!--        and a.is_deleted = 0-->
+<!--    </select>-->
+    <!--获取当前用户密码-->
+    <select id="getUserPwdByCode" parameterType="java.lang.String" resultType="java.lang.String">
+        select user_pwd
+        from t_sys_user
+        where user_code = #{userCode}
+        and is_deleted = 0
+    </select>
+    <!--修改个人信息-->
+    <update id="updatePassword" parameterType="com.xzsd.app.publicAdmin.entity.PublicAdminInfo">
+        update t_sys_user
+        set
+        user_pwd = #{userNewPwd},
+        version = version + 1
+        where user_code = #{userCode}
+        and version = #{version}
+    </update>
+</mapper>

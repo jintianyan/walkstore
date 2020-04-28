@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.app.my.dao.MyDao">
+    <!--校验邀请码（客户端）-->
+    <select id="countInvite" parameterType="java.lang.String" resultType="int">
+        select count(store_invite)
+        from t_sys_store
+        where store_invite = #{storeInvite}
+        and is_deleted = 0
+    </select>
+    <!--修改邀请码（客户端）-->
+    <update id="updateInvite" parameterType="java.lang.String">
+        update t_sys_customer
+        set
+        store_invite = #{storeInvite},
+        last_modified_by = #{loginCode},
+        last_modified_by = now(),
+        version = verison + 1
+        where customer_code = #{loginCode}
+        and is_deleted = 0
+    </update>
+    <!--查询区域司机列表（店长端）-->
+    <select id="getDriverByPage" parameterType="java.lang.String" resultType="com.xzsd.app.my.entity.MyInfo">
+        select
+        c.user_name userName,
+        c.phone phone
+        from t_sys_store a
+        left join t_sys_driver b on (a.area_code = b.area_code and a.city_code = b.city_code)
+        left join t_sys_user c on b.user_code = c.user_code
+        where a.manager_code = #{userCode}
+        and a.is_deleted = 0
+        and b.is_deleted = 0
+        and c.is_deleted = 0
+    </select>
+    <!--查询所属门店（司机端）-->
+    <select id="getStoreByPage" parameterType="java.lang.String" resultType="com.xzsd.app.my.entity.MyInfo">
+        select
+        e.store_code storeCode,
+        e.store_name storeName,
+        concat_ws('',b.field_value,c.field_value,d.field_value,e.store_address)address,
+        f.user_name userName,
+        f.phone phone
+        from t_sys_driver a
+        left join t_sys_dictionary b on a.province_code = b.field_code
+        left join t_sys_dictionary c on a.city_code = c.field_code
+        left join t_sys_dictionary d on a.area_code = d.field_code
+        left join t_sys_store e on (a.city_code = e.city_code and a.area_code = e.area_code)
+        left join t_sys_user f on e.manager_code = f.user_code
+        where a.is_deleted = 0
+        and e.is_deleted = 0
+        and a.user_code = #{userCode}
+    </select>
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.app.homePage.dao.HomePageDao">
+    <!--查询轮播图-->
+    <select id="listRotationChartByPage" resultType="com.xzsd.app.homePage.entity.HomePageInfo">
+        select
+        chart_route chartRoute,
+        goods_code goodsCode
+        from t_sys_rotationchart
+        where is_deleted = 0
+        and state = 0
+        order by serial_number asc
+    </select>
+    <!--查询展示数量-->
+    <select id="getShowNumber" resultType="int">
+        select field_value
+        from t_sys_dictionary
+        where field_name like '展示数量'
+        and is_deleted = 0
+    </select>
+    <!--查询热门商品-->
+    <select id="listHotGoodsByPage" parameterType="int" resultType="com.xzsd.app.homePage.entity.HomePageInfo">
+        select
+        a.goods_code goodsCode,
+        a.goods_name goodsName,
+        a.photo_path photoPath,
+        a.goods_price goodsPrice
+        from
+        t_sys_goods a,
+        t_sys_hot_goods b
+        where b.is_deleted = 0
+        and b.goods_code = a.goods_code
+        order by serial_number asc limit #{showNumber}
+    </select>
+</mapper>

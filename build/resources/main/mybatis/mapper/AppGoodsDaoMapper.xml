@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xzsd.app.appGoods.dao.AppGoodsDao">
+    <!--商品详情（app）-->
+    <select id="getGoods" parameterType="java.lang.String" resultType="com.xzsd.app.appGoods.entity.AppGoodsInfo">
+        select
+        goods_name goodsName,
+        book_num bookNumber,
+        goods_introduce goodsIntroduce,
+        goods_price goodsPrice,
+        photo_path photoPath,
+        star_class starClass,
+        author author,
+        press press
+        from t_sys_goods
+        where is_deleted = 0
+        and goods_code = #{goodsCode}
+    </select>
+    <!--查询商品评价-->
+    <select id="listEvaluatesByPage" parameterType="com.xzsd.app.appGoods.entity.EvaluatesInfo">
+        select
+        a.user_acct userAcct,
+        b.eva_content evaluateContent,
+        b.star_class starClass,
+        b.gmt_create createTime
+        from
+        t_sys_user a, t_sys_goods_eva b
+        where a.user_code = b.user_code
+        and b.is_deleted = 0
+        and b.goods_code = #{goodsCode}
+        <if test="starClass != null and starClass != ''">
+            and b.star_class = #{starClass}
+        </if>
+    </select>
+    <!--查询一级商品分类-->
+    <select id="listFirstGoodsSort" resultType="com.xzsd.app.appGoods.entity.AppGoodsInfo">
+        select
+        sort_code sortCode,
+        sort_name sortName
+        from t_sys_sort
+        where is_deleted = 0
+        and sort_parent_code = 0
+    </select>
+    <!--二级分类及商品一对多-->
+    <resultMap id="SecondSortGoods" type="com.xzsd.app.appGoods.entity.AppGoodsInfo">
+        <id column = "sort_code" property="sortCode"/>
+        <result column="sort_name" property="sortName"/>
+        <collection property="listSecondGoods" ofType="com.xzsd.app.appGoods.entity.SecondGoodsInfo" column="sort_code" select="selectGoods">
+            <id column="sort_code" property="sortCode"/>
+            <result column="goods_code" property="goodsCode"/>
+            <result column="goods_name" property="goodsName"/>
+            <result column="photo_path" property="photoPath"/>
+            <result column="goods_price" property="goodsPrice"/>
+        </collection>
+    </resultMap>
+    <!--查询二级分类及商品-->
+    <select id="listGetSortByPage" parameterType="java.lang.String" resultMap="SecondSortGoods">
+        select
+        sort_code,
+        sort_name
+        from t_sys_sort
+        where sort_parent_code = #{sortCode}
+        and is_deleted = 0
+    </select>
+    <select id="selectGoods" parameterType="com.xzsd.app.appGoods.entity.AppGoodsInfo" resultType="com.xzsd.app.appGoods.entity.SecondGoodsInfo">
+        select
+        goods_code goodsCode,
+        goods_name goodsName,
+        photo_path photoPath,
+        goods_price goodsPrice
+        from t_sys_goods
+        where second_sort_code = #{sortCode}
+        and is_deleted = 0
+    </select>
+</mapper>
